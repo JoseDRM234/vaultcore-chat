@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * .6);
+  --radius-md: calc(var(--radius) * .8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+:root {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(.145 0 0);
+  --primary: oklch(.205 0 0);
+  --primary-foreground: oklch(.985 0 0);
+  --muted: oklch(.97 0 0);
+  --muted-foreground: oklch(.556 0 0);
+  --border: oklch(.922 0 0);
+  --input: oklch(.922 0 0);
+  --ring: oklch(.708 0 0);
+  --radius: .625rem;
+}
+.dark {
+  color-scheme: dark;
+  --background: oklch(.145 0 0);
+  --foreground: oklch(.985 0 0);
+  --card: oklch(.205 0 0);
+  --card-foreground: oklch(.985 0 0);
+  --primary: oklch(.922 0 0);
+  --primary-foreground: oklch(.205 0 0);
+  --muted: oklch(.269 0 0);
+  --muted-foreground: oklch(.708 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(.556 0 0);
+}
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Authenticated surfaces use token overrides so legacy route-specific classes follow the global theme. */
+.bg-white { background-color: var(--card); }
+.bg-slate-50, .bg-slate-100 { background-color: var(--muted); }
+.bg-slate-800, .bg-slate-900, .bg-\[\#121b27\] { background-color: var(--card); }
+.bg-\[\#10161f\], .bg-\[\#0c121b\] { background-color: var(--background); }
+.border-slate-100, .border-slate-200, .border-slate-700, .border-slate-800 { border-color: var(--border); }
+.text-slate-900, .text-slate-100, .text-white { color: var(--foreground); }
+.text-slate-400, .text-slate-500, .text-slate-600 { color: var(--muted-foreground); }
+.hover\:bg-slate-100:hover, .hover\:bg-slate-800:hover { background-color: var(--muted); }
+.dark .bg-white { background-color: var(--card) !important; }
+.dark .bg-slate-50, .dark .bg-slate-100 { background-color: var(--muted) !important; }
+.dark .bg-slate-800, .dark .bg-slate-900, .dark .bg-\[\#121b27\] { background-color: var(--card) !important; }
+.dark .bg-\[\#f4f7fb\] { background-color: var(--background) !important; }
+.dark .border-slate-100, .dark .border-slate-200, .dark .border-slate-700, .dark .border-slate-800 { border-color: var(--border) !important; }
+.dark .text-slate-900, .dark .text-slate-100, .dark .text-white { color: var(--foreground) !important; }
+.dark .text-slate-400, .dark .text-slate-500, .dark .text-slate-600 { color: var(--muted-foreground) !important; }
+.light .bg-\[\#10161f\], .light .bg-\[\#0c121b\] { background-color: var(--background) !important; color: var(--foreground); }
+.light .bg-\[\#121b27\] { background-color: var(--card) !important; }
+.light .border-slate-800, .light .border-slate-700 { border-color: var(--border) !important; }
+.light .text-slate-100, .light .text-white { color: var(--foreground) !important; }
+.light .text-slate-400, .light .text-slate-500 { color: var(--muted-foreground) !important; }
+.login-shell { background: #09101c; }
+.login-hero { background: #0d1726; border-color: rgb(30 41 59 / .7); }
+.login-panel { background: #09101c; }
+.light .login-shell { background: #f4f7fb; color: #10233f; }
+.light .login-hero { background: #e8f0f7; border-color: #cbd5e1; }
+.light .login-panel { background: #fff; color: #10233f; }
+.light .login-shell .text-slate-100 { color: #10233f; }
+.light .login-shell .text-slate-400 { color: #526276; }
+.light .login-shell .text-slate-500, .light .login-shell .text-slate-600 { color: #64748b; }
+.light .login-shell .border-slate-700, .light .login-shell .border-slate-800 { border-color: #cbd5e1; }
+.light .login-shell .bg-slate-900\/60, .light .login-shell .bg-slate-900\/30 { background: #f8fafc; }
+.light .login-shell .bg-slate-800 { background: #e2e8f0; }
