@@ -1,89 +1,71 @@
-# VaultCore Chat
+# VaultCore Chat — Frontend (React 19 + E2EE)
 
-VaultCore Chat es una aplicación web moderna construida con React + Vite para gestionar comunicación interna, administración de usuarios y auditoría de actividades dentro de una organización.
+Interfaz web moderna construida con **React 19**, **Vite** y **Tailwind CSS**, preparada para operar con cifrado de extremo a extremo mediante la **Web Crypto API** (`window.crypto.subtle`) y comunicación en tiempo real con WebSockets (Socket.IO).
 
-## Características principales
+---
 
-- Inicio de sesión con flujo principal en la raíz de la app.
-- Panel administrativo con acceso a:
-  - Dashboard
-  - Usuarios
-  - Grupos
-  - Auditoría
-  - Perfil
-- Área de trabajo para miembros con acceso a:
-  - Chats
-  - Grupos
-  - Auditoría
-  - Perfil
-- Interfaz responsiva con diseño moderno y componentes reutilizables.
-- Enrutamiento por pestañas y rutas dedicadas para cada sección.
+## 🚀 Características Principales
 
-## Stack tecnológico
+* **Inicio de Sesión y Criptografía:** Flujo de acceso con generación de identidad local RSA-OAEP en primer acceso y custodia de la clave privada cifrada en IndexedDB.
+* **Área de Miembros (`/app/*`):**
+  * **Chats:** Mensajería en tiempo real con cifrado AES-256-GCM y recepción de eventos Socket.IO.
+  * **Grupos:** Consulta de membresías y políticas de canal.
+  * **Auditoría (Modo Auditor):** Inspección de eventos de seguridad en modo solo lectura.
+  * **Perfil:** Información del usuario y estado de identidad en el dispositivo.
+* **Panel de Administración (`/admin/*`):**
+  * **Dashboard:** Métricas globales en vivo (`/admin/stats`).
+  * **Usuarios:** Gestión de cuentas, roles (`admin`, `member`, `auditor`) y estados.
+  * **Grupos:** Creación de grupos y distribución de claves de canal cifradas.
+  * **Auditoría:** Registro inmutable y exportación de reportes en CSV.
 
-- React 19
-- Vite 8
-- React Router DOM
-- Tailwind CSS
-- Lucide React
-- Shadcn / Base UI
+---
 
-## Requisitos
+## 🛠️ Stack Tecnológico
 
-- Node.js 18 o superior
-- npm o pnpm
+* React 19
+* Vite 8
+* Gestor de Paquetes: `pnpm`
+* React Router DOM v7
+* Tailwind CSS v4
+* Lucide React
+* Shadcn / Base UI
+* Web Crypto API (`window.crypto.subtle`)
+* Socket.IO Client
 
-## Instalación
+---
+
+## 📋 Requisitos e Instalación
+
+* **Node.js:** v22 o superior
+* **pnpm:** v10 o v12 instalado
 
 ```bash
 cd frontend
-npm install
-```
 
-## Ejecución en desarrollo
+# Instalar dependencias con pnpm
+pnpm install
+
+# Iniciar servidor de desarrollo
+pnpm dev
+```
+La aplicación correrá normalmente en `http://localhost:5173`.
+
+---
+
+## 🔗 Conexión con el Backend
+
+El frontend se comunica con:
+* **API REST:** `http://localhost:4000/api/v1`
+* **WebSocket Gateway:** `ws://localhost:4000`
+
+---
+
+## 🏗️ Compilación para Producción
 
 ```bash
-npm run dev
+# Compilar bundle de producción
+pnpm build
+
+# Previsualizar build localmente
+pnpm preview
 ```
-
-La aplicación se abrirá normalmente en `http://localhost:5173`.
-
-## Compilación para producción
-
-```bash
-npm run build
-```
-
-## Vista previa de producción
-
-```bash
-npm run preview
-```
-
-## Estructura principal
-
-```text
-frontend/
-├── src/
-│   ├── components/
-│   ├── layouts/
-│   ├── pages/
-│   ├── App.jsx
-│   └── main.jsx
-├── package.json
-├── vite.config.js
-├── index.html
-└── README.md
-```
-
-## Navegación
-
-La app define dos grandes flujos:
-
-- `/` → pantalla de inicio de sesión
-- `/admin/*` → panel administrativo
-- `/app/*` → experiencia para miembros y auditores
-
-## Nota
-
-Este proyecto está pensado como una base para un sistema de chat corporativo con enfoque administrativo y trazabilidad de actividades.
