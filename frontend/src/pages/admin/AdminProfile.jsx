@@ -1,37 +1,70 @@
+import { useAuth } from '@/context/AuthContext'
+import { ShieldCheck, Key } from 'lucide-react'
+
+function getInitials(name) {
+  if (!name) return 'AD'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
 export default function AdminProfile() {
+  const { user } = useAuth()
+  const initials = getInitials(user?.fullName)
+
   return (
     <div className="p-6 sm:p-10">
-      <p className="font-mono text-xs uppercase tracking-widest text-cyan-700">Admin / Account</p>
+      <p className="font-mono text-xs uppercase tracking-widest text-cyan-600 dark:text-cyan-400">
+        Admin / Account
+      </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">Your profile</h1>
-      <div className="mt-8 max-w-xl rounded-xl border border-slate-200 bg-white p-6">
+      <div className="mt-8 max-w-xl rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="grid size-14 place-items-center rounded-full bg-[#10233f] text-lg font-semibold text-cyan-300">
-            AC
+          <div className="grid size-14 place-items-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
+            {initials}
           </div>
           <div>
-            <p className="font-semibold">Alex Carter</p>
-            <p className="text-sm text-slate-500">Workspace administrator</p>
+            <p className="font-semibold text-lg">{user?.fullName || 'Administrator'}</p>
+            <p className="text-sm text-muted-foreground capitalize">{user?.role} · Northstar workspace</p>
           </div>
         </div>
         <div className="mt-8 grid gap-4">
-          <label className="text-sm font-medium">
-            Full name
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+              Full name
+            </label>
             <input
-              defaultValue="Alex Carter"
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
+              readOnly
+              value={user?.fullName || ''}
+              className="mt-1 w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm outline-none font-medium"
             />
-          </label>
-          <label className="text-sm font-medium">
-            Email
+          </div>
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+              Email
+            </label>
             <input
-              defaultValue="alex@vaultcore.io"
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
+              readOnly
+              value={user?.email || ''}
+              className="mt-1 w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm outline-none font-mono"
             />
-          </label>
+          </div>
         </div>
-        <button className="mt-6 rounded-lg bg-[#10233f] px-4 py-2.5 text-sm font-medium text-white">
-          Save changes
-        </button>
+
+        <div className="mt-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-4">
+          <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-medium text-sm">
+            <Key className="size-4" /> Cryptographic Identity
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {user?.publicKey ? (
+              <span className="flex items-center gap-1 mt-1 text-emerald-600 dark:text-emerald-400 font-mono">
+                <ShieldCheck className="size-3.5" /> RSA-OAEP 2048-bit key registered and active
+              </span>
+            ) : (
+              'Key generation in progress'
+            )}
+          </p>
+        </div>
       </div>
     </div>
   )
