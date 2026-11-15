@@ -1,19 +1,49 @@
-const users = {
-  'admin@vaultcore.test': { id: 'usr_admin', name: 'Alex Morgan', email: 'admin@vaultcore.test', role: 'admin', firstAccess: false },
-  'member@vaultcore.test': { id: 'usr_member', name: 'Jordan Miller', email: 'member@vaultcore.test', role: 'member', firstAccess: true },
-  'auditor@vaultcore.test': { id: 'usr_auditor', name: 'Riley Chen', email: 'auditor@vaultcore.test', role: 'auditor', firstAccess: false },
-}
+import { apiClient } from './api-client'
 
 export const authService = {
-  async login(email, _password) {
-    await new Promise((resolve) => window.setTimeout(resolve, 500))
-    const user = users[email.trim().toLowerCase()]
-    if (!user) throw new Error('Credenciales no reconocidas. Usa una cuenta demo válida.')
-    const result = { ...user }
-    user.firstAccess = false
-    return result
+  /**
+   * Inicia sesión con email y contraseña contra la API
+   * POST /api/v1/auth/login
+   */
+  async login(email, password) {
+    const data = await apiClient.post('/auth/login', {
+      email: email.trim().toLowerCase(),
+      password,
+    })
+
+    if (data.accessToken) {
+      apiClient.setToken(data.accessToken)
+      sessionStorage.setItem('vaultcore_user', JSON.stringify(data.user))
+    }
+
+    return data
   },
-  demoLogin(role) {
-    return Object.values(users).find((user) => user.role === role)
+
+  /**
+   * Sube la clave pública SPKI en Base64 generada localmente
+   * POST /api/v1/users/me/public-key
+   */
+  async uploadPublicKey(publicKey) {
+    return apiClient.post('/users/me/public-key', { publicKey })
+  },
+
+  /**
+   * Obtiene los datos del usuario en sesión
+   * GET /api/v1/users/me
+   */
+  async getMe() {
+    return apiClient.get('/users/me')
+  },
+
+  /**
+   * Credenciales demo precargadas para acceso rápido
+   */
+  demoCredentials(role) {
+    const credentials = {
+      admin: { email: 'admin@vaultcore.test', password: 'password123' },
+      member: { email: 'member@vaultcore.test', password: 'password123' },
+      auditor: { email: 'auditor@vaultcore.test', password: 'password123' },
+    }
+    return credentials[role] || credentials.member
   },
 }

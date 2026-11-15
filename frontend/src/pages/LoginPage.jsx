@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, LockKeyhole, ShieldCheck, Sun, Moon, UserRound } from 'lucide-react'
+import { ArrowRight, LockKeyhole, ShieldCheck, Sun, Moon, UserRound, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 import { authService } from '@/services/auth-service'
 import { useTheme } from '@/components/theme-provider'
 
@@ -13,41 +14,43 @@ const roles = [
 export default function LoginPage() {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
+  const { login, initializingE2EE, loading: authLoading } = useAuth()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [initializing, setInitializing] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   function redirect(role) {
     navigate(role === 'admin' ? '/admin/dashboard' : role === 'auditor' ? '/app/audit' : '/app/chats')
   }
 
-  async function submit(event) {
-    event.preventDefault()
+  async function handleLogin(userEmail, userPassword) {
     setError('')
-    setLoading(true)
+    setSubmitting(true)
     try {
-      const user = await authService.login(email, password)
-      if (user.firstAccess) {
-        setInitializing(true)
-        // TODO: Generate a local RSA key pair and PBKDF2-encrypt the private key with Web Crypto.
-        window.setTimeout(() => redirect(user.role), 1800)
-      } else {
-        redirect(user.role)
-      }
+      const loggedUser = await login(userEmail, userPassword)
+      redirect(loggedUser.role)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No se pudo iniciar sesión.')
-      setLoading(false)
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  function demo(role) {
-    setLoading(true)
-    window.setTimeout(() => redirect(authService.demoLogin(role).role), 350)
+  async function submit(event) {
+    event.preventDefault()
+    await handleLogin(email, password)
   }
 
-  if (initializing) {
+  function handleDemo(role) {
+    const creds = authService.demoCredentials(role)
+    setEmail(creds.email)
+    setPassword(creds.password)
+    handleLogin(creds.email, creds.password)
+  }
+
+  if (initializingE2EE) {
     return (
       <main className="login-shell grid min-h-screen place-items-center px-6">
         <div className="text-center">
@@ -57,7 +60,7 @@ export default function LoginPage() {
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-cyan-300">First access</p>
           <h1 className="mt-4 text-3xl font-semibold">Inicializando cifrado...</h1>
           <p className="mt-3 max-w-sm text-sm text-slate-400">
-            Generando tu identidad local y protegiendo la clave privada.
+            Generando tu par de claves criptográficas RSA-OAEP y protegiendo tu clave privada local.
           </p>
           <div className="mx-auto mt-8 h-1 w-56 overflow-hidden rounded-full bg-slate-800">
             <div className="h-full w-1/2 animate-pulse rounded-full bg-cyan-300" />
@@ -66,6 +69,8 @@ export default function LoginPage() {
       </main>
     )
   }
+
+  const isLoading = submitting || authLoading
 
   return (
     <main className="login-shell min-h-screen text-slate-100 lg:grid lg:grid-cols-[1.05fr_0.95fr]">
@@ -145,15 +150,17 @@ export default function LoginPage() {
               />
             </label>
             {error && (
-              <p role="alert" className="text-sm text-rose-400">
-                {error}
-              </p>
+              <div role="alert" className="flex items-center gap-2 rounded-lg bg-rose-500/10 p-3 text-sm text-rose-400 border border-rose-500/20">
+                <AlertCircle className="size-4 shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
             <button
-              disabled={loading}
+              type="submit"
+              disabled={isLoading}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3.5 text-sm font-semibold text-[#07111f] transition hover:bg-cyan-200 disabled:opacity-70"
             >
-              {loading ? 'Authenticating…' : 'Sign in securely'}
+              {isLoading ? 'Authenticating…' : 'Sign in securely'}
               <ArrowRight className="size-4" />
             </button>
           </form>
@@ -167,8 +174,9 @@ export default function LoginPage() {
               <button
                 key={role}
                 type="button"
-                onClick={() => demo(role)}
-                className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/30 px-4 py-3 text-left transition hover:border-cyan-300/60"
+                disabled={isLoading}
+                onClick={() => handleDemo(role)}
+                className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/30 px-4 py-3 text-left transition hover:border-cyan-300/60 disabled:opacity-50"
               >
                 <span className="flex items-center gap-3">
                   <span className="grid size-8 place-items-center rounded-lg bg-slate-800 text-slate-400">
@@ -184,7 +192,7 @@ export default function LoginPage() {
             ))}
           </div>
           <p className="mt-6 text-center font-mono text-[11px] text-slate-600">
-            Demo environment · shortcuts skip encryption setup
+            Demo environment · Authenticates with real backend & Web Crypto E2EE
           </p>
         </div>
       </section>
